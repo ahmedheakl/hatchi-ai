@@ -21,7 +21,9 @@ def get_pylint_data() -> str:
     if pylint_status:
         pylint_data = "* Pylint: ran :ok:"
     else:
-        pylint_data = "<details><summary>Pylint: problems :warning: (click for details)</summary>\n"
+        pylint_data = (
+            "<details><summary>Pylint: problems :warning: (click for details)</summary>"
+        )
         pylint_data += f"```python\n{pylint_errors}```\n"
         pylint_data += "</details>"
     return pylint_data
@@ -42,7 +44,7 @@ def get_mypy_data() -> None:
         mypy_data = "* Mypy: ran :ok:"
     else:
         mypy_data = (
-            "<details><summary>Mypy: problems :warning: (click for details)</summary>\n"
+            "<details><summary>Mypy: problems :warning: (click for details)</summary>"
         )
         mypy_data += f"```python\n{mypy_errors}```\n"
         mypy_data += "</details>"
