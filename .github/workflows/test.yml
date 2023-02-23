@@ -1,4 +1,4 @@
-name: testBot
+name: pylint
 
 on: pull_request
 
@@ -19,7 +19,7 @@ jobs:
           python -m pip install --upgrade pip
           pip install pytest pylint
 
-      - name: Pylinting
+      - name: Pylint Style Checker
         run: |
           pylint hatchi |& tee pylint.txt
           echo "$PIPESTATUS" >> pylint_status.txt
