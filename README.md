@@ -1,4 +1,5 @@
 ![tests](https://github.com/ahmedheakl/hatchi/workflows/test/badge.svg)
+![cov](https://codecov.io/github/ahmedheakl/hatchi/branch/master/graph/badge.svg)
 # Hatchi: Smart Database Interface Dashboard for Querying numerous Data Sources.
 
 The project is developed with the motivation to obstain from writing boilerplate code and focusing on designing machine learning models and pipelines. We are currently targeting three main features: 
