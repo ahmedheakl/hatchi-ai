@@ -1,9 +1,9 @@
-name: Test
+name: test
 
 on: pull_request
 
 jobs:
-  Test:
+  example_comment_pr:
     runs-on: ubuntu-latest
     name: An example job to comment a PR
     steps:
@@ -21,7 +21,7 @@ jobs:
 
       - name: Pylinting
         run: |
-          pylint . |& tee pylint.txt
+          pylint hatchi |& tee pylint.txt
           echo "$PIPESTATUS" >> pylint_status.txt
           python scripts/pylint_parser.py
 
