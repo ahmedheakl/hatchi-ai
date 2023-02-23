@@ -29,12 +29,31 @@ def get_pylint_data() -> str:
 
 def get_mypy_data() -> None:
     """Retrieve mypy stats"""
+    mypy_errors = ""
+    with open(MYPY_FILE_NAME, "r", encoding="utf-8") as mypy_file:
+        for line in mypy_file.readlines():
+            mypy_errors += line
+    stat_data = ""
+    with open(MYPY_STATUS_NAME, "r", encoding="utf-8") as mypy_file:
+        stat_data = mypy_file.readline()
+
+    mypy_status: bool = int(stat_data) == 0
+    if mypy_status:
+        mypy_data = "* Mypy: ran :ok:"
+    else:
+        mypy_data = (
+            "<details><summary>Mypy: problems :warning: (click for details)</summary>\n"
+        )
+        mypy_data += f"```python\n{mypy_errors}```\n"
+        mypy_data += "</details>"
+    return mypy_data
 
 
 def main() -> None:
     """Main script for collecting stats"""
     linters_data = "#### Linters stats for Hatchi PR\n"
     linters_data += get_pylint_data()
+    linters_data += get_mypy_data()
 
     with open(LINTERS_FILE_NAME, "w", encoding="utf-8") as linters_file:
         linters_file.write(linters_data)
