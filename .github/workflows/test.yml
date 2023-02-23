@@ -1,9 +1,9 @@
-name: test
+name: Test
 
 on: pull_request
 
 jobs:
-  example_comment_pr:
+  Test:
     runs-on: ubuntu-latest
     name: An example job to comment a PR
     steps:
