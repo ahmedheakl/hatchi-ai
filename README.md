@@ -2,7 +2,7 @@
 
 The project is developed with the motivation to obstain from writing boilerplate code and focusing on designing machine learning models and pipelines. We are currently targeting three main features: 
 
-- Text-based query to get insights from any data source (relational database, no-SQL, CSV, parquert, feather ... etc)
+- Text-based query to get insights from any data source (SQL, no-SQL, CSV, parquert, feather ... etc)
 - Drag and drop pre-processing pipeline GUI
 - Drag and drop ML/DL models GUI
 
