@@ -1,27 +1,36 @@
 name: test
 
-on: pull_request
+on:
+  push:
+
+permissions:
+  contents: read
 
 jobs:
-  example_comment_pr:
+  test:
     runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v3
-      - name: Set up Python 3.8.15
+      - name: Set up Python 3.8
         uses: actions/setup-python@v3
         with:
-          python-version: "3.8.15"
+          python-version: "3.8"
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install pytest
+          pip install flake8 pytest pytest-cov
+          pip install -r requirements.txt
 
-      - name: Run tests
-        run: pytest hatchi/tests
+      - name: Lint with flake8
+        run: |
+          # stop the build if there are Python syntax errors or undefined names
+          flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+          # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
+          flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
 
-      - name: Comment PR
-        uses: thollander/actions-comment-pull-request@v2
-        with:
-          message: |
-            Hello world ! :wave:
+      - name: Run tests and collect coverage
+        run: pytest --cov=hatchi .
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v3
