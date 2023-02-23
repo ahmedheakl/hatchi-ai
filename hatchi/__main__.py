@@ -1,7 +1,7 @@
 """Main script for Hatchi library"""
 
 
-def main(x_coord: int, y_coord: int) -> int:
+def main(x_coord: float, y_coord: int) -> int:
     """Main function for the libray.
     Should be run as follows:
 

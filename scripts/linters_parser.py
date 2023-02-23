@@ -27,6 +27,10 @@ def get_pylint_data() -> str:
     return pylint_data
 
 
+def get_mypy_data() -> None:
+    """Retrieve mypy stats"""
+
+
 def main() -> None:
     """Main script for collecting stats"""
     linters_data = "#### Linters stats for Hatchi PR\n"
