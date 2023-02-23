@@ -1,11 +1,11 @@
-name: Test
+name: test
 
 on: pull_request
 
 jobs:
-  Test:
+  example_comment_pr:
     runs-on: ubuntu-latest
-    name: Test and comment on PR
+    name: An example job to comment a PR
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -19,7 +19,7 @@ jobs:
           python -m pip install --upgrade pip
           pip install pytest pylint
 
-      - name: Pylint for Style
+      - name: Pylinting
         run: |
           pylint . |& tee pylint.txt
           echo "$PIPESTATUS" >> pylint_status.txt
