@@ -4,6 +4,8 @@ PYLINT_FILE_NAME = "pylint.txt"
 PYLINT_STATUS_NAME = "pylint_status.txt"
 MYPY_FILE_NAME = "mypy.txt"
 MYPY_STATUS_NAME = "mypy_status.txt"
+COVERAGE_FILE_NAME = "coverage.log"
+COVERAGE_STATUS_NAME = "coverage_status.log"
 LINTERS_FILE_NAME = "linters.txt"
 
 
@@ -47,11 +49,35 @@ def get_mypy_data() -> None:
     return mypy_data
 
 
+def get_coverage_details() -> str:
+    """Retrieve coverage stats"""
+    coverage_stats = ""
+    with open(COVERAGE_FILE_NAME, "r", encoding="utf-8") as coverage_file:
+        for line in coverage_file.readlines():
+            coverage_stats += "\t" + line
+    stat_data = ""
+    with open(COVERAGE_STATUS_NAME, "r", encoding="utf-8") as coverage_file:
+        stat_data = coverage_file.readline()
+
+    coverage_status: bool = int(stat_data) == 0
+    if coverage_status:
+        coverage_data = (
+            "* <details><summary>Coverage: ran :ok: (click for details)</summary>\n"
+        )
+        coverage_data += f"\n\t```\n{coverage_stats}\t```\n"
+        coverage_data += "</details>"
+
+    else:
+        coverage_data = "* Coverage: problems :warning:"
+    return coverage_data
+
+
 def main() -> None:
     """Main script for collecting stats"""
     linters_data = "#### Linters stats for Hatchi PR\n"
     linters_data += get_pylint_data() + "\n\n"
-    linters_data += get_mypy_data()
+    linters_data += get_mypy_data() + "\n\n"
+    linters_data += get_coverage_details()
 
     with open(LINTERS_FILE_NAME, "w", encoding="utf-8") as linters_file:
         linters_file.write(linters_data)
