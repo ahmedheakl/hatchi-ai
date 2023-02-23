@@ -1,31 +1,30 @@
+# This workflow will install Python dependencies, run tests and lint with a single version of Python
+# For more information see: https://help.github.com/actions/language-and-framework-guides/using-python-with-github-actions
+
 name: test
 
-on: pull_request
+on:
+  push:
+
+  pull_request:
+
+permissions:
+  contents: read
 
 jobs:
-  example_comment_pr:
+  test:
     runs-on: ubuntu-latest
-    name: An example job to comment a PR
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
 
-      - name: Set up Python 3.8
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Python 3.8.15
         uses: actions/setup-python@v3
         with:
-          python-version: "3.8"
+          python-version: "3.8.15"
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install pytest pylint
+          pip install pytest
 
-      - name: Pylinting
-        run: |
-          pylint hatchi |& tee pylint.txt
-          echo "$PIPESTATUS" >> pylint_status.txt
-          python scripts/pylint_parser.py
-
-      - name: Comment PR
-        uses: thollander/actions-comment-pull-request@v2
-        with:
-          filePath: pylint_data.txt
+      - name: Run tests
+        run: pytest hatchi/test
