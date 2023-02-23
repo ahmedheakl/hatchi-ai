@@ -1,9 +1,9 @@
-name: Test
+name: pylint
 
 on: pull_request
 
 jobs:
-  Test:
+  Testing:
     runs-on: ubuntu-latest
     name: An example job to comment a PR
     steps:
@@ -19,9 +19,9 @@ jobs:
           python -m pip install --upgrade pip
           pip install pytest pylint
 
-      - name: Pylinting
+      - name: Pylint Style Checker
         run: |
-          pylint . |& tee pylint.txt
+          pylint hatchi |& tee pylint.txt
           echo "$PIPESTATUS" >> pylint_status.txt
           python scripts/pylint_parser.py
 

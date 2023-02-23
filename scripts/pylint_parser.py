@@ -2,11 +2,11 @@ pylint_errors = ""
 with open("pylint.txt", "r", encoding="utf-8") as f:
     for line in f.readlines():
         pylint_errors += line
-stat = ""
+stat_data = ""
 with open("pylint_status.txt", "r", encoding="utf-8") as f:
-    stat = f.readline()
+    stat_data = f.readline()
 
-status = int(stat) == 0
+status = int(stat_data) == 0
 
 if status:
     ans = "*   Pylint: ran :ok:"
