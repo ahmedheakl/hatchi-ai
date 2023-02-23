@@ -20,7 +20,7 @@ Start by cloning the project into your local, and creating your virtual environe
 ```bash
 $ sudo apt-get update # update current packages
 $ sudo apt-get install -y virtualenv python3-virtualenv # install python virtualenv
-$ virtualenv ~/hatchivenv --python=python3.8 # create dronevis virtual env
+$ virtualenv ~/hatchivenv --python=python3.8 # create hatchi virtual env
 $ source ~/hatchivenv/bin/activate # activate virtualenv
 ```
 
