@@ -24,7 +24,7 @@ def get_pylint_data() -> str:
         pylint_data = (
             "<details><summary>Pylint: problems :warning: (click for details)</summary>"
         )
-        pylint_data += f"```python\n{pylint_errors}```\n"
+        pylint_data += f"```python\n{pylint_errors}\n```"
         pylint_data += "</details>"
     return pylint_data
 
