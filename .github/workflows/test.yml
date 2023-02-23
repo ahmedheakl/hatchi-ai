@@ -23,9 +23,9 @@ jobs:
         run: |
           pylint hatchi |& tee pylint.txt
           echo "$PIPESTATUS" >> pylint_status.txt
-          python scripts/pylint_parser.py
+          python scripts/linters_parser.py
 
       - name: Comment PR
         uses: thollander/actions-comment-pull-request@v2
         with:
-          filePath: pylint_data.txt
+          filePath: linters.txt
