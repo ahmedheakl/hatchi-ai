@@ -3,7 +3,7 @@ name: pylint
 on: pull_request
 
 jobs:
-  example_comment_pr:
+  Testing:
     runs-on: ubuntu-latest
     name: An example job to comment a PR
     steps:
