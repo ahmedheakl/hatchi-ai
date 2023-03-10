@@ -35,7 +35,7 @@ class Encoder(nn.Module):
     def forward(self, input_query: torch.Tensor) -> Tuple[torch.Tensor, torch.Tensor]:
         """Forward pass through the decoder network
 
-        Input query dim     = [seq_len, batch_size]
+        Input query dim = [seq_len, batch_size]
 
         Note that the input tensors are assumed to be set to the desired device.
 
@@ -139,7 +139,7 @@ class Seq2Seq(nn.Module):
             for the next stage for decoding. Defaults to 0.5.
 
         Returns:
-            torch.Tensor: _description_
+            torch.Tensor: Word outputs with dim [target_len, N, vocab_size]
         """
         batch_size = source.size(1)
         target_len = target.size(0)
@@ -148,13 +148,20 @@ class Seq2Seq(nn.Module):
 
         hidden, cell = self.encoder(source)
 
-        output: torch.Tensor = source[0]
+        # Since the source starts with <SOS> token, we are setting the first token
+        # input to decoder to <SOS>. Output dim = [N,]
+        output: torch.Tensor = target[0]
 
-        for word_t in range(target_len):
-            output, (hidden, cell) = self.decoder(output, (hidden, cell))
+        for word_t in range(1, target_len):
+            # Output dim = [N, vocab_size]
+            output, hidden, cell = self.decoder(output, hidden, cell)
             outputs[word_t] = output
+
+            # Best word dim = [N, ]
             best_word = output.argmax(1)
 
+            # With probability of teacher_force_ratio we take the actual next word
+            # otherwise we take the word that the Decoder predicted
             output = target[word_t] if random() < teacher_forcing_ratio else best_word
 
         return outputs
