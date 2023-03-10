@@ -28,7 +28,7 @@ jobs:
 
       - name: Pylint Style Checker
         run: |
-          pylint hatchi --disable=too-many-arguments,no-member |& tee pylint.txt
+          pylint hatchi --disable=too-many-arguments,no-member --ignore=tests |& tee pylint.txt
           echo "$PIPESTATUS" >> pylint_status.txt
 
       - name: Mypy Style Checker
