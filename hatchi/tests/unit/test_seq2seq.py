@@ -13,7 +13,7 @@ def setup_train_device():
 
 
 @pytest.mark.parametrize("dropout_ratio", [-1.2, 20.0])
-@pytest.mark.parametrize("Model", [Encoder, Decoder])
+@pytest.mark.parametrize("model", [Encoder, Decoder])
 def test_dropout_ratio_bigger_out_of_range(dropout_ratio, model):
     """Testing if the model throws an assertion error if the value of dropout
     parameter is less than zero or bigger than one
@@ -23,7 +23,7 @@ def test_dropout_ratio_bigger_out_of_range(dropout_ratio, model):
         model(vocab_size, hidden_size, embedding_size, num_layers, dropout_ratio)
 
 
-@pytest.mark.parametrize("Model", [Encoder, Decoder])
+@pytest.mark.parametrize("model", [Encoder, Decoder])
 def test_encoder_layers_is_positive(model):
     """Testing if the model throws an assertion error if the value of `num_layers`
     parameter is less than zero or bigger than one
