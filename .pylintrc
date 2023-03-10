@@ -1,0 +1,3 @@
+[MASTER]
+ignore = */tests/*
+disable = no-member,too-many-arguments
