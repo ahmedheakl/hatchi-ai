@@ -2,6 +2,7 @@
 from typing import TypeVar
 import os
 import torch
+import nltk
 from torch import nn
 
 WikiData = TypeVar("WikiData", bound="WikiSQLDatasetFactory")
@@ -13,6 +14,12 @@ class WikiSQLDatasetFactory:
 
     It implements a pipeline for preprocessing and transforming
     WikiSQL to the desired format.
+
+    The preprocessing includes:
+
+    1. Lowercasing
+    2. Tokenization
+    3.
     """
 
     def __init__(self, dataset) -> None:
@@ -20,6 +27,7 @@ class WikiSQLDatasetFactory:
 
     def preprocess(self: WikiData) -> WikiData:
         """Preprocess WikiSQL dataset from training"""
+
         return self
 
 
