@@ -1,11 +1,10 @@
 """Implementation for the Seq2Seq model using LSTM"""
 from typing import Tuple
 from random import random
-import os
 import torch
 from torch import nn
 
-_DEVICE = os.environ["TRAIN_DEVICE"]
+from hatchi.utils.general import get_device
 
 
 class Encoder(nn.Module):
@@ -13,13 +12,16 @@ class Encoder(nn.Module):
 
     def __init__(
         self,
+        vocab_size: int,
         hidden_size: int,
         embedding_dim: int,
-        vocab_size: int,
         num_layers: int,
         dropout_ratio: float = 0.5,
     ) -> None:
         super().__init__()
+        assert 0.0 <= dropout_ratio <= 1.0, "Dropout ratio must be between 0 and 1"
+        assert num_layers > 0, "Number of LSTM layers must be bigger than 0"
+
         self.embedding = nn.Embedding(
             num_embeddings=vocab_size,
             embedding_dim=embedding_dim,
@@ -49,6 +51,9 @@ class Encoder(nn.Module):
             Tuple[torch.Tensor, torch.Tensor]: Hidden and cell gate vectors representing the latent
             dim. Both have the same dimension [num_layers, batch_size, hidden_size]
         """
+        if not isinstance(input_query, torch.Tensor):
+            raise TypeError("Input query must be a torch tensor")
+
         # Embedding shape = [seq_len, batch_size, embedding_dim]
         embedding = self.dropout(self.embedding(input_query))
 
@@ -69,6 +74,9 @@ class Decoder(nn.Module):
         dropout_ratio: float = 0.5,
     ) -> None:
         super().__init__()
+        assert 0.0 <= dropout_ratio <= 1.0, "Dropout ratio must be between 0 and 1"
+        assert num_layers > 0, "Number of LSTM layers must be bigger than 0"
+
         self.dropout = nn.Dropout(dropout_ratio)
         self.embedding = nn.Embedding(vocab_size, embedding_size)
         self.lstm = nn.LSTM(
@@ -96,6 +104,13 @@ class Decoder(nn.Module):
             Tuple[torch.Tensor, ...]: (prediction scores for the output word, hidden tensor,
             cell gate tensor)
         """
+        if not (
+            isinstance(input_tensor, torch.Tensor)
+            and isinstance(hidden, torch.Tensor)
+            and isinstance(cell, torch.Tensor)
+        ):
+            raise TypeError("Inputs must be tensors")
+
         # Conver the dimension from [N, ] to [1, N] meaning a seq_len=1
         input_tensor = input_tensor.unsqueeze(0)
 
@@ -141,10 +156,14 @@ class Seq2Seq(nn.Module):
         Returns:
             torch.Tensor: Word outputs with dim [target_len, N, vocab_size]
         """
+        assert (
+            0 <= teacher_forcing_ratio <= 1
+        ), "Teacher forcing must be between 0 and 1"
+
         batch_size = source.size(1)
         target_len = target.size(0)
 
-        outputs = torch.zeros(target_len, batch_size, self.vocab_size).to(_DEVICE)
+        outputs = torch.zeros(target_len, batch_size, self.vocab_size).to(get_device())
 
         hidden, cell = self.encoder(source)
 
