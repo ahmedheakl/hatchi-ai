@@ -1,11 +1,23 @@
 """Implementation of WikiSQL dataset preprocessors"""
-from typing import Dict
+from typing import Dict, Set, List, TypeVar, NamedTuple
 import logging
 import re
 
 from datasets.dataset_dict import DatasetDict
 
 _LOG = logging.getLogger(__name__)
+WikiTokenizer = TypeVar("WikiTokenizer", bound="WikiSQLTokenizer")
+
+
+class Accessors(NamedTuple):
+    """Accessor names for the database"""
+
+    table: str = "table"
+    table_cols: str = "headers"
+    table_name: str = "name"
+    sql: str = "sql"
+    sql_readable: str = "human_readable"
+    question: str = "question"
 
 
 class WikiSQLTokenizer:
@@ -18,9 +30,10 @@ class WikiSQLTokenizer:
     pad_token = "<pad>"
     unk_token = "<unk>"
     scheme_start_token = "<sch>"
-    scheme_end_token = "<sch>"
+    scheme_end_token = "</sch>"
 
     def __init__(self) -> None:
+        self._opt = Accessors()
         self._vocab: Dict[str, int] = {
             self.sos_token: 0,
             self.eos_token: 1,
@@ -28,7 +41,16 @@ class WikiSQLTokenizer:
             self.unk_token: 3,
             " ": 4,
         }
-        self.vocab_count = 5
+        self._vocab_size = 5
+
+    @property
+    def vocab_size(self) -> int:
+        """Retrieve vocab size"""
+        return self._vocab_size
+
+    @vocab_size.setter
+    def vocab_size(self, _) -> None:
+        raise AttributeError("Vocab size cannot be modified")
 
     def get_sos_index(self) -> int:
         """Getter for index of SOS token"""
@@ -50,19 +72,20 @@ class WikiSQLTokenizer:
         """Retrieve index of the word"""
         return self._vocab[word]
 
-    def process_text(self, words: list) -> set:
+    def process_text(self, words: List[str]) -> Set[str]:
         """Process text by:
         1. Lowercasing
         2. Removing punctuation and special characters (except '?', '.' , ',', '"', "'",
         and mathmatical operations)
-        3. Splitting words which are concatnated with punctuations marks/mathmatical
+        3. Splitting words which are concatnated with punctuation marks/mathematical
         operations
 
         Returns:
-            list: list of processed words
+            Set[str]: Set of processed words
         """
         # Match all special chars except space
         pattern = r"(?!([a-z]|[0-9]|(\ )))."
+
         # Pattern to match all mentioned punctuation marks
         puncs_pattern = (
             r"[(\,)|(\.)|(\?)|(\")|(\')|(\=)|(\*)|(\+)|(\/)|(\-)|(\ )|(\;)|(\))|(\())]"
@@ -90,13 +113,15 @@ class WikiSQLTokenizer:
 
         return processed_words
 
-    def add_to_vocab(self, word) -> None:
+    def add_to_vocab(self, word: str) -> None:
         """Add word to tokenizer vocabulary"""
-        if self._vocab.get(word, -1) == -1:
-            self._vocab[word] = self.vocab_count
-            self.vocab_count += 1
+        if self._vocab.get(word, -1) != -1:
+            return
 
-    def vocab_extractor(self, dataset: DatasetDict) -> None:
+        self._vocab[word] = self._vocab_size
+        self._vocab_size += 1
+
+    def vocab_extractor(self: WikiTokenizer, dataset: DatasetDict) -> WikiTokenizer:
         """Load the dataset to extract vocabulary
 
         Args:
@@ -105,11 +130,25 @@ class WikiSQLTokenizer:
         # Add table column names
         for split in dataset:
             for entry in split:
-                for words in entry["table"]["header"]:
+                for words in entry[self._opt.table][self._opt.table_cols]:
                     for word in self.process_text(words):
                         self.add_to_vocab(word)
 
                 # Adding table name, sql query, and the given
-                self.add_to_vocab(self.process_text(entry["table"]["name"]))
-                self.add_to_vocab(self.process_text(entry["sql"]["human_readable"]))
-                self.add_to_vocab(self.process_text(entry["question"]))
+                self.add_to_vocab(
+                    self.process_text(
+                        entry[self._opt.table][self._opt.table_name],
+                    )
+                )
+                self.add_to_vocab(
+                    self.process_text(
+                        entry[self._opt.sql][self._opt.sql_readable],
+                    )
+                )
+                self.add_to_vocab(
+                    self.process_text(
+                        entry[self._opt.question],
+                    )
+                )
+
+        return self
