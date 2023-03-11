@@ -1,15 +1,13 @@
 """Implementation of WikiSQL dataset preprocessors"""
 from typing import Dict, Set, List, TypeVar, NamedTuple
 from pathlib import Path
-
 import logging
+import json
 import re
-
 from datasets.dataset_dict import DatasetDict
 
 _LOG = logging.getLogger(__name__)
 WikiTokenizer = TypeVar("WikiTokenizer", bound="WikiSQLTokenizer")
-path = Path(".")
 
 
 class Accessors(NamedTuple):
@@ -21,6 +19,7 @@ class Accessors(NamedTuple):
     sql: str = "sql"
     sql_readable: str = "human_readable"
     question: str = "question"
+    folder_path: Path = Path(__file__).parent.resolve()
 
 
 class WikiSQLTokenizer:
@@ -159,10 +158,23 @@ class WikiSQLTokenizer:
         return self
 
     def save_vocab(self) -> None:
-        pass
+        """Save WikiSQL tokenizer vocab as a json file in the same directory."""
+        with open(
+            self._opt.folder_path / "wikisql_vocab.json", "w", encoding="utf-8"
+        ) as file:
+            json.dump(self._vocab, file)
+            _LOG.debug("Vocab saved in %s", self._opt.folder_path.absolute())
 
-    def load_vocab(self) -> None:
-        pass
+    def load_vocab(self, vocab_dir: Path) -> None:
+        """Load WikiSQL tokenizer vocab from provided directory"""
+        vocab_dir = self._opt.folder_path / vocab_dir
+
+        try:
+            with open(vocab_dir, encoding="utf-8") as file:
+                self._vocab = json.load(file)
+
+        except FileNotFoundError as exc:
+            raise FileNotFoundError(f"File {vocab_dir} doesn't exist!") from exc
 
     def wikisql_parser(self, query: str) -> List[int]:
         pass
