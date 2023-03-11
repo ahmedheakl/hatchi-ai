@@ -1,7 +1,7 @@
 """Main script for Hatchi library"""
 import logging
 
-from utils.general import init_logger
+from hatchi.utils.general import init_logger
 
 _LOG = logging.getLogger(__name__)
 
