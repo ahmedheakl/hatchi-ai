@@ -1,5 +1,7 @@
 """Implementation of WikiSQL dataset preprocessors"""
 from typing import Dict, Set, List, TypeVar, NamedTuple
+from pathlib import Path
+
 import logging
 import re
 
@@ -7,6 +9,7 @@ from datasets.dataset_dict import DatasetDict
 
 _LOG = logging.getLogger(__name__)
 WikiTokenizer = TypeVar("WikiTokenizer", bound="WikiSQLTokenizer")
+path = Path(".")
 
 
 class Accessors(NamedTuple):
@@ -39,9 +42,11 @@ class WikiSQLTokenizer:
             self.eos_token: 1,
             self.pad_token: 2,
             self.unk_token: 3,
-            " ": 4,
+            self.scheme_start_token: 4,
+            self.scheme_end_token: 5,
+            " ": 6,
         }
-        self._vocab_size = 5
+        self._vocab_size = 7
 
     @property
     def vocab_size(self) -> int:
@@ -152,3 +157,12 @@ class WikiSQLTokenizer:
                 )
 
         return self
+
+    def save_vocab(self) -> None:
+        pass
+
+    def load_vocab(self) -> None:
+        pass
+
+    def wikisql_parser(self, query: str) -> List[int]:
+        pass
