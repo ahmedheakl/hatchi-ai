@@ -1,5 +1,5 @@
 """Implementation of WikiSQL dataset preprocessors"""
-from typing import Dict, Set, List, TypeVar, NamedTuple
+from typing import Dict, Set, List, TypeVar, NamedTuple, Union
 from pathlib import Path
 import logging
 import json
@@ -14,7 +14,7 @@ class Accessors(NamedTuple):
     """Accessor names for the database"""
 
     table: str = "table"
-    table_cols: str = "headers"
+    table_cols: str = "header"
     table_name: str = "name"
     sql: str = "sql"
     sql_readable: str = "human_readable"
@@ -87,6 +87,13 @@ class WikiSQLTokenizer:
         Returns:
             Set[str]: Set of processed words
         """
+        try:
+            assert isinstance(words, list)
+
+        except AssertionError as exc:
+            _LOG.error("Input must be list")
+            raise TypeError() from exc
+
         # Match all special chars except space
         pattern = r"(?!([a-z]|[0-9]|(\ )))."
 
@@ -99,12 +106,14 @@ class WikiSQLTokenizer:
         for word in words:
             word = word.lower()
             punc_marks = re.findall(puncs_pattern, word)
-            split_words = re.sub(puncs_pattern, " ", word)
-            split_words = re.sub(pattern, " ", split_words).split(" ")
+            unsplitted_words = re.sub(puncs_pattern, " ", word)
+            split_words = re.sub(pattern, " ", unsplitted_words).split(" ")
 
             for clean_word in split_words:
                 if clean_word.isdigit() and not clean_word.isalpha():
-                    processed_words.add(clean_word[0])
+                    nums = list(clean_word)
+                    for num in nums:
+                        processed_words.add(num)
 
                 else:
                     processed_words.add(re.sub(pattern, "", clean_word))
@@ -117,13 +126,18 @@ class WikiSQLTokenizer:
 
         return processed_words
 
-    def add_to_vocab(self, word: str) -> None:
+    def add_to_vocab(self, words: Union[List[str], Set[str]]) -> None:
         """Add word to tokenizer vocabulary"""
-        if self._vocab.get(word, -1) != -1:
-            return
+        if isinstance(words, str):
+            if self._vocab.get(words, -1) != -1:
+                return
 
-        self._vocab[word] = self._vocab_size
-        self._vocab_size += 1
+            self._vocab[words] = self._vocab_size
+            self._vocab_size += 1
+
+        for word in words:
+            self._vocab[word] = self._vocab_size
+            self._vocab_size += 1
 
     def vocab_extractor(self: WikiTokenizer, dataset: DatasetDict) -> WikiTokenizer:
         """Load the dataset to extract vocabulary
@@ -133,25 +147,26 @@ class WikiSQLTokenizer:
         """
         # Add table column names
         for split in dataset:
-            for entry in split:
-                for words in entry[self._opt.table][self._opt.table_cols]:
-                    for word in self.process_text(words):
-                        self.add_to_vocab(word)
+            for entry in dataset[split]:
+                processed_columns_names = self.process_text(
+                    entry[self._opt.table][self._opt.table_cols]
+                )
 
-                # Adding table name, sql query, and the given
+                self.add_to_vocab(processed_columns_names)
+
                 self.add_to_vocab(
                     self.process_text(
-                        entry[self._opt.table][self._opt.table_name],
+                        [entry[self._opt.table][self._opt.table_name]],
                     )
                 )
                 self.add_to_vocab(
                     self.process_text(
-                        entry[self._opt.sql][self._opt.sql_readable],
+                        [entry[self._opt.sql][self._opt.sql_readable]],
                     )
                 )
                 self.add_to_vocab(
                     self.process_text(
-                        entry[self._opt.question],
+                        [entry[self._opt.question]],
                     )
                 )
 
@@ -167,14 +182,25 @@ class WikiSQLTokenizer:
 
     def load_vocab(self, vocab_dir: Path) -> None:
         """Load WikiSQL tokenizer vocab from provided directory"""
-        vocab_dir = self._opt.folder_path / vocab_dir
 
         try:
             with open(vocab_dir, encoding="utf-8") as file:
+                _LOG.debug("Loaded vocab from %s", vocab_dir)
                 self._vocab = json.load(file)
 
         except FileNotFoundError as exc:
             raise FileNotFoundError(f"File {vocab_dir} doesn't exist!") from exc
 
-    def wikisql_parser(self, query: str) -> List[int]:
-        pass
+    def wikisql_parser(self, data_row: str) -> List[int]:
+        """Parses input soruce/target data into vector of mapped tokens
+        indicies from the tokenizer's vocab with a constant
+        output size of 512 tokens for the source query and 64 for SQL query.
+
+        Args:
+            data_row (str): input row of data
+
+        Returns:
+            List[int]: list of parsed tokens mapped from the tokenizer's vocab
+        """
+        _ = data_row
+        return []
