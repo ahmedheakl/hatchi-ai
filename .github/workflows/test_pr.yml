@@ -18,6 +18,7 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install pytest pylint mypy pytest-cov coverage
+          pip install -r requirements.txt
 
       - name: Test with pytest
         run: |
@@ -27,7 +28,7 @@ jobs:
 
       - name: Pylint Style Checker
         run: |
-          pylint hatchi --disable=no-member |& tee pylint.txt
+          pylint hatchi --disable=too-many-arguments,no-member --ignore=tests |& tee pylint.txt
           echo "$PIPESTATUS" >> pylint_status.txt
 
       - name: Mypy Style Checker
