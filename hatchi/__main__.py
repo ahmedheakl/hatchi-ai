@@ -10,6 +10,7 @@ def main(x_coord: int, y_coord: int) -> int:
         main()
     ```
     """
+    print("I am lucky")
     return x_coord + y_coord
 
 
