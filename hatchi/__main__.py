@@ -10,7 +10,7 @@ def main(x_coord: int, y_coord: int) -> int:
         main()
     ```
     """
-    return x_coord + y_coord
+    return x_coord - y_coord
 
 
 if __name__ == "__main__":
