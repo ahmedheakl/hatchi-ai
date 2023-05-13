@@ -29,7 +29,7 @@ def get_pylint_data() -> str:
     return pylint_data
 
 
-def get_mypy_data() -> None:
+def get_mypy_data() -> str:
     """Retrieve mypy stats"""
     mypy_errors = ""
     with open(MYPY_FILE_NAME, "r", encoding="utf-8") as mypy_file:
